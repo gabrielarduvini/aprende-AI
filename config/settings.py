@@ -16,7 +16,12 @@ DEBUG = True
 
 # Permite rodar em qualquer host (útil no hackathon se precisar testar no celular via Wi-Fi)
 ALLOWED_HOSTS = ['*']
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'core/static'),
+]
 
 # Application definition
 

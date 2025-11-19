@@ -1,10 +1,8 @@
-import ollama
+import speech_recognition as sr
 
-response = ollama.chat(model='llama3.2', messages=[
-  {
-    'role': 'user',
-    'content': 'Você está pronto para ajudar alunos a estudar?',
-  },
-])
+# Testa se está instalado
+print("SpeechRecognition instalado:", sr.__version__)
 
-print(response['message']['content'])
+# Testa reconhecimento básico
+recognizer = sr.Recognizer()
+print("Recognizer criado com sucesso!")

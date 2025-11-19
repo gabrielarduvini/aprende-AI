@@ -1,0 +1,712 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprende AI - Alfabetização</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1976D2;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: #1976D2;
+            max-width: 500px;
+            width: 100%;
+            min-height: 600px;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .score::before {
+            content: '💡';
+            font-size: 24px;
+        }
+        
+        .avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .speech-bubble {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 25px;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid white;
+        }
+
+        .speech-bubble-text {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .avatar-circle {
+            width: 160px;
+            height: 160px;
+            background: linear-gradient(135deg, #64B5F6 0%, #42A5F5 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-static {
+            font-size: 80px;
+            display: block;
+        }
+
+        .avatar-gif {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .avatar-gif.active {
+            display: block;
+        }
+
+        .avatar-static.hidden {
+            display: none;
+        }
+
+        .sound-btn {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 24px;
+            transition: transform 0.2s;
+        }
+
+        .sound-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .sound-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .question-title {
+            color: #333;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .letra-display {
+            background: #F5F5F5;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .letra-grande {
+            font-size: 64px;
+            font-weight: bold;
+            color: #1976D2;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+        }
+
+        .canvas-container {
+            background: white;
+            border: 3px solid #E0E0E0;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .canvas-title {
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        #drawCanvas {
+            border: 2px dashed #1976D2;
+            border-radius: 10px;
+            cursor: crosshair;
+            touch-action: none;
+            width: 100%;
+            height: 200px;
+            background: white;
+        }
+
+        .canvas-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .canvas-btn {
+            background: #F5F5F5;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .canvas-btn:hover {
+            background: #E0E0E0;
+            border-color: #1976D2;
+        }
+        
+        .btn {
+            background: white;
+            border: 3px solid #E0E0E0;
+            border-radius: 15px;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            border-color: #1976D2;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: #58CC02;
+            border-color: #58CC02;
+            color: white;
+            font-size: 18px;
+            padding: 20px;
+            box-shadow: 0 4px 0 #46A302;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary:hover {
+            background: #61D802;
+            border-color: #61D802;
+        }
+
+        .btn-primary:active {
+            box-shadow: 0 2px 0 #46A302;
+            transform: translateY(2px);
+        }
+
+        .btn-record {
+            background: #F44336;
+            border-color: #F44336;
+            color: white;
+        }
+
+        .feedback {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.success {
+            background: #D4EDDA;
+            color: #155724;
+            display: block;
+        }
+
+        .feedback.error {
+            background: #F8D7DA;
+            color: #721C24;
+            display: block;
+        }
+
+        .transcricao-box {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+            border: 3px solid #E0E0E0;
+            display: none;
+        }
+
+        .transcricao-box.show {
+            display: block;
+        }
+
+        .transcricao-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .transcricao-text {
+            font-weight: bold;
+            font-size: 24px;
+            color: #1976D2;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .avatar-circle {
+                width: 140px;
+                height: 140px;
+            }
+
+            .letra-grande {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="window.history.back()">←</button>
+            <div class="score" id="score">10</div>
+        </div>
+
+        <div class="avatar-section">
+            <div class="speech-bubble">
+                <div class="speech-bubble-text">Vamos falar de vogais!</div>
+            </div>
+
+            <div class="avatar-circle">
+                <span class="avatar-static" id="avatarStatic">👨‍🏫</span>
+                <img 
+                    id="avatarGif"
+                    class="avatar-gif" 
+                    src="{% static 'images/personagem.gif' %}"
+                    alt="Avatar falando"
+                >
+                <button class="sound-btn" onclick="ouvirPalavra()">🔊</button>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-title">
+                <span id="questionText">Escreva as vogais acima na lousa abaixo</span>
+                <button class="sound-btn" style="position:static; width:40px; height:40px; font-size:20px;" onclick="ouvirPalavra()">🔊</button>
+            </div>
+
+            <div class="letra-display">
+                <div class="letra-grande" id="palavra">CARREGANDO</div>
+            </div>
+
+            <div class="canvas-container">
+                <div class="canvas-title">✏️ Desenhe aqui as letras</div>
+                <canvas id="drawCanvas"></canvas>
+                <div class="canvas-controls">
+                    <button class="canvas-btn" onclick="limparCanvas()">🗑️ Limpar</button>
+                    <button class="canvas-btn" onclick="alterarCor('#000000')">⚫ Preto</button>
+                    <button class="canvas-btn" onclick="alterarCor('#1976D2')">🔵 Azul</button>
+                    <button class="canvas-btn" onclick="alterarCor('#F44336')">🔴 Vermelho</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mostra o que você falou -->
+        <div class="transcricao-box" id="transcricaoBox">
+            <div class="transcricao-label">Você disse:</div>
+            <div class="transcricao-text" id="transcricaoText">-</div>
+        </div>
+
+        <!-- Feedback de acerto/erro -->
+        <div class="feedback" id="feedback"></div>
+
+        <button class="btn" onclick="novaPalavra()">
+            🔄 Próxima Palavra
+        </button>
+
+        <button class="btn btn-primary" id="btnGravar" onclick="toggleGravacao()">
+            🎤 GRAVAR RESPOSTA
+        </button>
+    </div>
+
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+    
+    <script>
+        let palavraAtual = '';
+        let recorder;
+        let isRecording = false;
+        let recordingTimeout;
+        let pontos = 10;
+
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let currentColor = '#000000';
+
+        function setupCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const mouseEvent = new MouseEvent('mouseup', {});
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            ctx.strokeStyle = currentColor;
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function limparCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function alterarCor(cor) {
+            currentColor = cor;
+        }
+
+        function mostrarAvatarFalando(mostrar) {
+            const avatarStatic = document.getElementById('avatarStatic');
+            const avatarGif = document.getElementById('avatarGif');
+            
+            if (mostrar) {
+                avatarStatic.classList.add('hidden');
+                avatarGif.classList.add('active');
+            } else {
+                avatarStatic.classList.remove('hidden');
+                avatarGif.classList.remove('active');
+            }
+        }
+
+        window.onload = function() {
+            setupCanvas();
+            novaPalavra();
+        };
+
+        window.addEventListener('resize', setupCanvas);
+
+        async function novaPalavra() {
+            try {
+                const response = await fetch('/api/nova-palavra/');
+                const data = await response.json();
+                palavraAtual = data.palavra;
+                document.getElementById('palavra').textContent = palavraAtual.toUpperCase();
+                document.getElementById('feedback').style.display = 'none';
+                document.getElementById('transcricaoBox').classList.remove('show');
+                limparCanvas();
+            } catch (error) {
+                console.error('Erro ao carregar palavra:', error);
+            }
+        }
+
+        async function ouvirPalavra() {
+            try {
+                mostrarAvatarFalando(true);
+                
+                const response = await fetch('/api/tts/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ texto: palavraAtual })
+                });
+                
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                audio.play();
+                
+                audio.onended = () => {
+                    mostrarAvatarFalando(false);
+                };
+            } catch (error) {
+                console.error('Erro ao ouvir palavra:', error);
+                mostrarAvatarFalando(false);
+            }
+        }
+
+        async function toggleGravacao() {
+            if (isRecording) {
+                pararGravacao();
+            } else {
+                iniciarGravacao();
+            }
+        }
+
+        async function iniciarGravacao() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 16000
+                    }
+                });
+                
+                recorder = RecordRTC(stream, {
+                    type: 'audio',
+                    mimeType: 'audio/wav',
+                    recorderType: RecordRTC.StereoAudioRecorder,
+                    numberOfAudioChannels: 1,
+                    desiredSampRate: 16000
+                });
+                
+                recorder.startRecording();
+                isRecording = true;
+                
+                const btnGravar = document.getElementById('btnGravar');
+                btnGravar.textContent = '⏹️ PARAR GRAVAÇÃO';
+                btnGravar.classList.add('btn-record');
+                
+                recordingTimeout = setTimeout(() => {
+                    if (isRecording) {
+                        pararGravacao();
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Erro ao acessar microfone:', error);
+                alert('Erro ao acessar microfone. Verifique as permissões.');
+            }
+        }
+
+        function pararGravacao() {
+            if (!recorder) return;
+            
+            if (recordingTimeout) {
+                clearTimeout(recordingTimeout);
+            }
+            
+            recorder.stopRecording(async function() {
+                const blob = recorder.getBlob();
+                
+                if (recorder.stream) {
+                    recorder.stream.getTracks().forEach(track => track.stop());
+                }
+                
+                isRecording = false;
+                const btnGravar = document.getElementById('btnGravar');
+                btnGravar.textContent = '🎤 GRAVAR RESPOSTA';
+                btnGravar.classList.remove('btn-record');
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                enviarAudio(blob);
+            });
+        }
+
+        async function enviarAudio(audioBlob) {
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'gravacao.wav');
+            formData.append('palavra_esperada', palavraAtual);
+
+            try {
+                const response = await fetch('/api/stt/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                const feedbackEl = document.getElementById('feedback');
+                const transcricaoBox = document.getElementById('transcricaoBox');
+                const transcricaoText = document.getElementById('transcricaoText');
+                
+                // Mostra o que foi falado
+                if (data.transcricao) {
+                    transcricaoText.textContent = data.transcricao;
+                    transcricaoBox.classList.add('show');
+                } else {
+                    transcricaoText.textContent = 'Não foi possível ouvir';
+                    transcricaoBox.classList.add('show');
+                }
+                
+                // Mostra feedback de acerto/erro
+                if (data.error) {
+                    feedbackEl.className = 'feedback error';
+                    feedbackEl.textContent = '❌ ' + data.error;
+                    return;
+                }
+                
+                if (data.acertou) {
+                    pontos += 10;
+                    document.getElementById('score').textContent = pontos;
+                    feedbackEl.className = 'feedback success';
+                    feedbackEl.textContent = '🎉 ' + data.mensagem;
+                    
+                    // Próxima palavra automaticamente após 3 segundos
+                    setTimeout(() => novaPalavra(), 3000);
+                } else {
+                    feedbackEl.className = 'feedback error';
+                    feedbackEl.textContent = '❌ ' + data.mensagem;
+                }
+                
+            } catch (error) {
+                console.error('Erro ao enviar áudio:', error);
+                const feedbackEl = document.getElementById('feedback');
+                feedbackEl.className = 'feedback error';
+                feedbackEl.textContent = '❌ Erro ao processar áudio. Tente novamente.';
+            }
+        }
+    </script>
+</body>
+</html>
